@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+### UTILS
+
 # Gets the full path to this dotfiles repo
 DOTFILES_DIR=$(cd "${BASH_SOURCE%/*}/.." && pwd)
 
@@ -15,5 +17,39 @@ function symlink_dotfile() {
   fi
 }
 
-# Add setup steps below here!
+function install_homebrew_if_needed() {
+  if test ! $(which brew); then
+    echo "+ Installing homebrew..."
+
+    ruby -e "$(curl -fsSL \
+      https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+    brew update
+  else
+    echo "+ Homebrew already installed... skipping."
+  fi
+}
+
+function brew_install() {
+  local package=$1
+
+  if brew list "$package" > /dev/null 2>&1; then
+    echo "+ $package already installed... skipping."
+  else
+    brew install $@
+  fi
+}
+
+### DEPENDENCIES
+
+echo
+
+install_homebrew_if_needed
+
+# everyone loves sl
+brew_install sl
+brew_install git
+
+### DOTFILES
+
 symlink_dotfile bashrc ~/.bashrc
